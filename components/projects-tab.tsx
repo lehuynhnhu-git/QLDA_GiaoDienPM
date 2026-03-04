@@ -1,12 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, MoreVertical, Calendar, DollarSign, Users as UsersIcon, TrendingUp } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Plus, MoreVertical, Calendar, DollarSign, Users as UsersIcon } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Dialog,
   DialogContent,
@@ -26,22 +25,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { projects } from "@/lib/data"
-
-const statusConfig = {
-  active: { label: "Đang hoạt động", color: "bg-green-500/10 text-green-700 dark:text-green-400" },
-  "on-hold": { label: "Tạm dừng", color: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400" },
-  completed: { label: "Hoàn thành", color: "bg-blue-500/10 text-blue-700 dark:text-blue-400" },
-}
-
-// Helper function to get initials from name
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
-}
+import { projectStatusConfig } from "@/lib/configs"
+import { formatDateWithOptions } from "@/lib/formatters"
+import { UserAvatar } from "@/components/common/user-avatar"
 
 export function ProjectsTab() {
   const [open, setOpen] = useState(false)
@@ -115,8 +101,8 @@ export function ProjectsTab() {
                 <CardTitle className="text-lg line-clamp-1">
                   {project.name}
                 </CardTitle>
-                <Badge className={statusConfig[project.status].color} variant="secondary">
-                  {statusConfig[project.status].label}
+                <Badge className={projectStatusConfig[project.status].color} variant="secondary">
+                  {projectStatusConfig[project.status].label}
                 </Badge>
               </div>
               <DropdownMenu>
@@ -150,12 +136,12 @@ export function ProjectsTab() {
                   <div className="flex flex-col">
                     <span className="text-xs text-muted-foreground">Thời gian</span>
                     <span className="font-medium text-xs">
-                      {new Date(project.startDate).toLocaleDateString("vi-VN", {
+                      {formatDateWithOptions(project.startDate, {
                         day: "2-digit",
                         month: "2-digit",
                       })}
                       {" - "}
-                      {new Date(project.endDate).toLocaleDateString("vi-VN", {
+                      {formatDateWithOptions(project.endDate, {
                         day: "2-digit",
                         month: "2-digit",
                       })}
@@ -197,11 +183,12 @@ export function ProjectsTab() {
                     <div className="flex-1 space-y-1.5">
                       {project.teamMembers.slice(0, 3).map((member, idx) => (
                         <div key={idx} className="flex items-center gap-2">
-                          <Avatar className="size-6 shrink-0">
-                            <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-semibold">
-                              {getInitials(member.name)}
-                            </AvatarFallback>
-                          </Avatar>
+                          <UserAvatar
+                            name={member.name}
+                            size="sm"
+                            className="size-6 shrink-0"
+                            fallbackClassName="text-[9px] font-semibold"
+                          />
                           <div className="flex-1 min-w-0">
                             <p className="text-[11px] font-medium truncate leading-tight">
                               {member.name}

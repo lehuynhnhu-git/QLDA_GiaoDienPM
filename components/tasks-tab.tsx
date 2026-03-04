@@ -1,10 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { tasks, projects, type Task, type TaskStatus, type TaskPriority } from "@/lib/data"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { tasks, projects, type TaskStatus, type TaskPriority } from "@/lib/data"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -29,26 +28,15 @@ import {
   Filter,
   Plus,
   Calendar,
-  ChevronRight,
   FolderKanban,
   Edit,
   Trash2,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
-
-const statusConfig: Record<TaskStatus, { label: string; color: string; bg: string }> = {
-  todo: { label: "Chưa làm", color: "text-muted-foreground", bg: "bg-muted" },
-  "in-progress": { label: "Đang làm", color: "text-primary", bg: "bg-primary/10" },
-  review: { label: "Review", color: "text-chart-3", bg: "bg-chart-3/10" },
-  done: { label: "Hoàn thành", color: "text-success", bg: "bg-success/10" },
-}
-
-const priorityConfig: Record<TaskPriority, { label: string; color: string }> = {
-  low: { label: "Thấp", color: "bg-muted text-muted-foreground" },
-  medium: { label: "Trung bình", color: "bg-primary/10 text-primary" },
-  high: { label: "Cao", color: "bg-chart-3/10 text-chart-3" },
-  critical: { label: "Nghiêm trọng", color: "bg-destructive/10 text-destructive" },
-}
+import { taskStatusConfig, taskPriorityConfig } from "@/lib/configs"
+import { formatDate, groupByProject } from "@/lib/formatters"
+import { StatusBadge } from "@/components/common/status-badge"
+import { UserAvatar } from "@/components/common/user-avatar"
+import { EmptyState } from "@/components/common/empty-state"
 
 export function TasksTab() {
   const [search, setSearch] = useState("")
@@ -62,10 +50,7 @@ export function TasksTab() {
   })
 
   // Group tasks by project
-  const tasksByProject = projects.map((project) => ({
-    project,
-    tasks: filteredTasks.filter((task) => task.projectId === project.id)
-  })).filter((group) => group.tasks.length > 0) // Only show projects that have tasks
+  const tasksByProject = groupByProject(filteredTasks, projects)
 
   return (
     <div className="flex flex-col gap-6">
@@ -179,16 +164,14 @@ export function TasksTab() {
 
       {/* Tasks by Project */}
       {tasksByProject.length === 0 ? (
-        <div className="text-center py-12">
-          <Calendar className="size-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Không tìm thấy nhiệm vụ</h3>
-          <p className="text-muted-foreground">
-            Thử thay đổi bộ lọc hoặc thêm nhiệm vụ mới
-          </p>
-        </div>
+        <EmptyState
+          icon={Calendar}
+          title="Không tìm thấy nhiệm vụ"
+          description="Thử thay đổi bộ lọc hoặc thêm nhiệm vụ mới"
+        />
       ) : (
         <div className="space-y-6">
-          {tasksByProject.map(({ project, tasks: projectTasks }) => (
+          {tasksByProject.map(({ project, items: projectTasks }) => (
             <div key={project.id} className="space-y-3">
               <div className="flex items-center gap-2">
                 <FolderKanban className="size-5 text-primary" />
@@ -215,27 +198,19 @@ export function TasksTab() {
                           <tr key={task.id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
                             <td className="px-4 py-3 text-sm font-medium">{task.title}</td>
                             <td className="px-4 py-3">
-                              <Badge variant="outline" className={cn("text-[10px]", statusConfig[task.status].bg, statusConfig[task.status].color)}>
-                                {statusConfig[task.status].label}
-                              </Badge>
+                              <StatusBadge status={task.status} config={taskStatusConfig} />
                             </td>
                             <td className="px-4 py-3">
-                              <Badge variant="outline" className={cn("text-[10px]", priorityConfig[task.priority].color)}>
-                                {priorityConfig[task.priority].label}
-                              </Badge>
+                              <StatusBadge status={task.priority} config={taskPriorityConfig} />
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
-                                <Avatar className="size-6">
-                                  <AvatarFallback className="text-[9px] font-medium bg-secondary text-secondary-foreground">
-                                    {task.assigneeAvatar}
-                                  </AvatarFallback>
-                                </Avatar>
+                                <UserAvatar name={task.assignee} size="sm" />
                                 <span className="text-sm">{task.assignee}</span>
                               </div>
                             </td>
                             <td className="px-4 py-3 text-sm text-muted-foreground">
-                              {new Date(task.dueDate).toLocaleDateString("vi-VN")}
+                              {formatDate(task.dueDate)}
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-1">

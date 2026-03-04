@@ -8,9 +8,6 @@ import {
   Grid3x3,
   List,
   FileText,
-  FileImage,
-  FileSpreadsheet,
-  File,
   Download,
   Trash2,
   Eye,
@@ -49,14 +46,9 @@ import {
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { documents, projects, type DocumentType } from "@/lib/data"
-
-const typeConfig = {
-  pdf: { icon: FileText, label: "PDF", color: "text-red-600" },
-  doc: { icon: FileText, label: "Word", color: "text-blue-600" },
-  xls: { icon: FileSpreadsheet, label: "Excel", color: "text-green-600" },
-  img: { icon: FileImage, label: "Image", color: "text-purple-600" },
-  other: { icon: File, label: "Other", color: "text-gray-600" },
-}
+import { documentTypeConfig } from "@/lib/configs"
+import { formatDate, groupByProject } from "@/lib/formatters"
+import { EmptyState } from "@/components/common/empty-state"
 
 export function DocumentsTab() {
   const [search, setSearch] = useState("")
@@ -72,14 +64,11 @@ export function DocumentsTab() {
   })
 
   // Group documents by project
-  const documentsByProject = projects.map((project) => ({
-    project,
-    documents: filteredDocuments.filter((doc) => doc.projectId === project.id)
-  })).filter((group) => group.documents.length > 0) // Only show projects that have documents
+  const documentsByProject = groupByProject(filteredDocuments, projects)
 
   const getFileIcon = (type: DocumentType) => {
-    const Icon = typeConfig[type].icon
-    return <Icon className={`size-8 ${typeConfig[type].color}`} />
+    const Icon = documentTypeConfig[type].icon
+    return <Icon className={`size-8 ${documentTypeConfig[type].color}`} />
   }
 
   return (
@@ -185,16 +174,14 @@ export function DocumentsTab() {
       </Card>
 
       {documentsByProject.length === 0 ? (
-        <div className="text-center py-12">
-          <FileText className="size-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Không tìm thấy tài liệu</h3>
-          <p className="text-muted-foreground">
-            Thử thay đổi bộ lọc hoặc tải lên tài liệu mới
-          </p>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title="Không tìm thấy tài liệu"
+          description="Thử thay đổi bộ lọc hoặc tải lên tài liệu mới"
+        />
       ) : (
         <div className="space-y-6">
-          {documentsByProject.map(({ project, documents: projectDocs }) => (
+          {documentsByProject.map(({ project, items: projectDocs }) => (
             <div key={project.id} className="space-y-3">
               <div className="flex items-center gap-2">
                 <FolderKanban className="size-5 text-primary" />
@@ -217,7 +204,7 @@ export function DocumentsTab() {
                             </p>
                             <div className="flex items-center justify-center gap-2">
                               <Badge variant="secondary" className="text-xs">
-                                {typeConfig[doc.type].label}
+                                {documentTypeConfig[doc.type].label}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
                                 {doc.size}
@@ -226,7 +213,7 @@ export function DocumentsTab() {
                             <div className="text-xs text-muted-foreground text-center">
                               <div>{doc.uploadedBy}</div>
                               <div>
-                                {new Date(doc.uploadedAt).toLocaleDateString("vi-VN")}
+                                {formatDate(doc.uploadedAt)}
                               </div>
                             </div>
                           </div>
@@ -269,7 +256,7 @@ export function DocumentsTab() {
                                 <span>{doc.uploadedBy}</span>
                                 <span>•</span>
                                 <span>
-                                  {new Date(doc.uploadedAt).toLocaleDateString("vi-VN")}
+                                  {formatDate(doc.uploadedAt)}
                                 </span>
                                 <span>•</span>
                                 <span>{doc.size}</span>
@@ -277,7 +264,7 @@ export function DocumentsTab() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge variant="secondary">{typeConfig[doc.type].label}</Badge>
+                            <Badge variant="secondary">{documentTypeConfig[doc.type].label}</Badge>
                             <Button variant="ghost" size="sm">
                               <Eye className="size-4" />
                             </Button>

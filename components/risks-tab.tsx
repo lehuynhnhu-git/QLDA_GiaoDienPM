@@ -6,30 +6,18 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   ShieldAlert,
-  AlertTriangle,
-  ShieldCheck,
-  Shield,
   Plus,
   User,
   ArrowRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const levelConfig: Record<RiskLevel, { label: string; color: string; bg: string; icon: typeof ShieldAlert }> = {
-  low: { label: "Thấp", color: "text-success", bg: "bg-success/10", icon: ShieldCheck },
-  medium: { label: "Trung bình", color: "text-chart-3", bg: "bg-chart-3/10", icon: Shield },
-  high: { label: "Cao", color: "text-destructive", bg: "bg-destructive/10", icon: AlertTriangle },
-  critical: { label: "Nghiêm trọng", color: "text-destructive", bg: "bg-destructive/15", icon: ShieldAlert },
-}
-
-const statusConfig: Record<string, { label: string; color: string }> = {
-  open: { label: "Mở", color: "bg-destructive/10 text-destructive" },
-  mitigating: { label: "Đang xử lý", color: "bg-chart-3/10 text-chart-3" },
-  resolved: { label: "Đã giải quyết", color: "bg-success/10 text-success" },
-}
-
-const impactLabels: Record<string, string> = { low: "Thấp", medium: "Trung bình", high: "Cao" }
-const probLabels: Record<string, string> = { low: "Thấp", medium: "Trung bình", high: "Cao" }
+import {
+  riskLevelConfig,
+  riskStatusConfig,
+  riskImpactLabels,
+  riskProbLabels,
+} from "@/lib/configs"
+import { StatusBadge } from "@/components/common/status-badge"
 
 export function RisksTab() {
   const openRisks = risks.filter((r) => r.status === "open").length
@@ -87,7 +75,7 @@ export function RisksTab() {
               <tbody>
                 {(["high", "medium", "low"] as const).map((prob) => (
                   <tr key={prob}>
-                    <td className="p-2 font-medium text-muted-foreground">{probLabels[prob]}</td>
+                    <td className="p-2 font-medium text-muted-foreground">{riskProbLabels[prob]}</td>
                     {(["low", "medium", "high"] as const).map((impact) => {
                       const count = risks.filter(
                         (r) => r.probability === prob && r.impact === impact && r.status !== "resolved"
@@ -121,8 +109,8 @@ export function RisksTab() {
       {/* Risk list */}
       <div className="flex flex-col gap-3">
         {risks.map((risk) => {
-          const level = levelConfig[risk.level]
-          const status = statusConfig[risk.status]
+          const level = riskLevelConfig[risk.level]
+          const status = riskStatusConfig[risk.status]
           const LevelIcon = level.icon
           return (
             <Card key={risk.id} className="hover:shadow-sm transition-shadow">
@@ -141,11 +129,11 @@ export function RisksTab() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                       <div>
                         <span className="text-muted-foreground">Xác suất: </span>
-                        <span className="font-medium">{probLabels[risk.probability]}</span>
+                        <span className="font-medium">{riskProbLabels[risk.probability]}</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Tác động: </span>
-                        <span className="font-medium">{impactLabels[risk.impact]}</span>
+                        <span className="font-medium">{riskImpactLabels[risk.impact]}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <User className="size-3 text-muted-foreground" />

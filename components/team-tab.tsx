@@ -4,7 +4,6 @@ import { useState } from "react"
 import { teamMembers, projects } from "@/lib/data"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import {
@@ -30,22 +29,11 @@ import {
   Plus,
   UserPlus,
   BarChart3,
-  Shield,
   Edit,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const availabilityConfig: Record<string, { label: string; color: string; dot: string }> = {
-  available: { label: "Sẵn sàng", color: "text-success", dot: "bg-success" },
-  busy: { label: "Bận", color: "text-chart-3", dot: "bg-chart-3" },
-  off: { label: "Nghỉ", color: "text-muted-foreground", dot: "bg-muted-foreground" },
-}
-
-const permissionConfig = {
-  admin: { label: "Admin", color: "bg-red-500/10 text-red-700 dark:text-red-400", icon: "👑" },
-  member: { label: "Thành viên", color: "bg-blue-500/10 text-blue-700 dark:text-blue-400", icon: "👤" },
-  viewer: { label: "Xem", color: "bg-gray-500/10 text-gray-700 dark:text-gray-400", icon: "👁️" },
-}
+import { teamAvailabilityConfig, teamPermissionConfig } from "@/lib/configs"
+import { UserAvatar } from "@/components/common/user-avatar"
 
 export function TeamTab() {
   const [inviteOpen, setInviteOpen] = useState(false)
@@ -169,19 +157,15 @@ export function TeamTab() {
       {/* Team grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {teamMembers.map((member) => {
-          const avail = availabilityConfig[member.availability]
-          const perm = permissionConfig[member.permission]
+          const avail = teamAvailabilityConfig[member.availability]
+          const perm = teamPermissionConfig[member.permission]
           const completionRate = Math.round((member.tasksCompleted / member.tasksAssigned) * 100)
           return (
             <Card key={member.id} className="hover:shadow-sm transition-shadow">
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center gap-3">
                   <div className="relative">
-                    <Avatar className="size-14">
-                      <AvatarFallback className="bg-primary/10 text-primary text-base font-semibold">
-                        {member.avatar}
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatar name={member.name} size="lg" className="size-14" fallbackClassName="text-base font-semibold" />
                     <div className={cn("absolute bottom-0 right-0 size-3.5 rounded-full border-2 border-card", avail.dot)} />
                   </div>
                   <div>

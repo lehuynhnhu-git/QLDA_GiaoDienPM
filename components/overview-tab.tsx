@@ -27,18 +27,8 @@ import {
   Pie,
   Tooltip as RechartsTooltip,
 } from "recharts"
-
-const statusColors: Record<string, string> = {
-  active: "bg-success text-success-foreground",
-  "on-hold": "bg-warning text-warning-foreground",
-  completed: "bg-primary text-primary-foreground",
-}
-
-const statusLabels: Record<string, string> = {
-  active: "Đang triển khai",
-  "on-hold": "Tạm dừng",
-  completed: "Hoàn thành",
-}
+import { projectStatusColors, projectStatusLabels } from "@/lib/configs"
+import { formatDate } from "@/lib/formatters"
 
 const taskStatusData = [
   { name: "Chưa làm", value: tasks.filter((t) => t.status === "todo").length, fill: "#94a3b8" },
@@ -128,8 +118,8 @@ export function OverviewTab() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="font-medium text-sm">{project.name}</span>
-                    <Badge className={statusColors[project.status]} variant="secondary">
-                      {statusLabels[project.status]}
+                    <Badge className={projectStatusColors[project.status]} variant="secondary">
+                      {projectStatusLabels[project.status]}
                     </Badge>
                   </div>
                   <span className="text-sm font-semibold">{project.progress}%</span>
@@ -142,7 +132,7 @@ export function OverviewTab() {
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="size-3" />
-                    <span>Hạn: {new Date(project.endDate).toLocaleDateString("vi-VN")}</span>
+                    <span>Hạn: {formatDate(project.endDate)}</span>
                   </div>
                 </div>
               </div>

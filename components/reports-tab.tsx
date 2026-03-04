@@ -6,10 +6,6 @@ import {
   FileText,
   Download,
   Eye,
-  BarChart3,
-  TrendingUp,
-  Users,
-  AlertTriangle,
   Calendar,
   Trash2,
   FolderOpen,
@@ -36,51 +32,12 @@ import {
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { reports, projects, type ReportType } from "@/lib/data"
-
-const reportTemplates = [
-  {
-    type: "project-summary" as ReportType,
-    title: "Báo cáo tổng quan dự án",
-    description: "Tổng hợp tiến độ, ngân sách và metrics của dự án",
-    icon: BarChart3,
-    color: "text-blue-600 bg-blue-50 dark:bg-blue-950",
-  },
-  {
-    type: "task-progress" as ReportType,
-    title: "Tiến độ nhiệm vụ",
-    description: "Phân tích chi tiết các nhiệm vụ và milestone",
-    icon: TrendingUp,
-    color: "text-green-600 bg-green-50 dark:bg-green-950",
-  },
-  {
-    type: "team-performance" as ReportType,
-    title: "Hiệu suất nhóm",
-    description: "Đánh giá năng suất và đóng góp của thành viên",
-    icon: Users,
-    color: "text-purple-600 bg-purple-50 dark:bg-purple-950",
-  },
-  {
-    type: "risk-analysis" as ReportType,
-    title: "Phân tích rủi ro",
-    description: "Báo cáo các rủi ro và kế hoạch xử lý",
-    icon: AlertTriangle,
-    color: "text-orange-600 bg-orange-50 dark:bg-orange-950",
-  },
-]
-
-const reportTypeLabels: Record<ReportType, string> = {
-  "project-summary": "Tổng quan dự án",
-  "task-progress": "Tiến độ nhiệm vụ",
-  "team-performance": "Hiệu suất nhóm",
-  "risk-analysis": "Phân tích rủi ro",
-}
-
-const reportTypeColors: Record<ReportType, string> = {
-  "project-summary": "bg-blue-500/10 text-blue-700 dark:text-blue-400",
-  "task-progress": "bg-green-500/10 text-green-700 dark:text-green-400",
-  "team-performance": "bg-purple-500/10 text-purple-700 dark:text-purple-400",
-  "risk-analysis": "bg-orange-500/10 text-orange-700 dark:text-orange-400",
-}
+import {
+  reportTemplates,
+  reportTypeLabels,
+  reportTypeColors,
+} from "@/lib/configs"
+import { formatDate } from "@/lib/formatters"
 
 export function ReportsTab() {
   const [createOpen, setCreateOpen] = useState(false)
@@ -281,7 +238,7 @@ export function ReportsTab() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                               <Calendar className="size-3" />
-                              {new Date(report.generatedAt).toLocaleDateString("vi-VN")}
+                              {formatDate(report.generatedAt)}
                             </div>
                             <div className="flex gap-1">
                               <Button variant="ghost" size="sm" className="size-7 p-0">
@@ -330,7 +287,7 @@ export function ReportsTab() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Calendar className="size-3" />
-                      {new Date(report.generatedAt).toLocaleDateString("vi-VN")}
+                      {formatDate(report.generatedAt)}
                     </div>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="sm" className="size-7 p-0">
